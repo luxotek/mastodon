@@ -106,8 +106,7 @@ class MediaAttachment < ApplicationRecord
                     convert_options: { all: '-quality 90 -strip' }
 
   validates_attachment_content_type :file, content_type: IMAGE_MIME_TYPES + VIDEO_MIME_TYPES + AUDIO_MIME_TYPES
-  validates_attachment_size :file, less_than: IMAGE_LIMIT, unless: :audio?
-  validates_attachment_size :file, less_than: IMAGE_LIMIT, unless: :video?
+  validates_attachment_size :file, less_than: IMAGE_LIMIT, if: :image?
   validates_attachment_size :file, less_than: AUDIO_LIMIT, if: :audio?
   validates_attachment_size :file, less_than: VIDEO_LIMIT, if: :video?
   remotable_attachment :file, VIDEO_LIMIT
