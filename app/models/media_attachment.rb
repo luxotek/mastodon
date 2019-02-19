@@ -51,7 +51,7 @@ class MediaAttachment < ApplicationRecord
       format: 'mp4',
       convert_options: {
         output: {
-          filter_complex: '"[0:a]compand,showwaves=s=640x360:mode=line,format=yuv420p[v]"',
+          filter_complex: '"[0:a]compand,showwavespic=s=640x360:split_channels=1,format=yuv420p[v]"',
           map: '"[v]" -map 0:a', 
           threads: 2,
           vcodec: 'libx264',
@@ -92,8 +92,10 @@ class MediaAttachment < ApplicationRecord
     },
   }.freeze
 
-  IMAGE_LIMIT = 8.megabytes
-  VIDEO_LIMIT = 40.megabytes
+  IMAGE_LIMIT = 14.megabytes 
+  AUDIO_LIMIT = 70.megabytes 
+  VIDEO_LIMIT = 140.megabytes 
+
 
   belongs_to :account,          inverse_of: :media_attachments, optional: true
   belongs_to :status,           inverse_of: :media_attachments, optional: true
@@ -105,7 +107,8 @@ class MediaAttachment < ApplicationRecord
                     convert_options: { all: '-quality 90 -strip' }
 
   validates_attachment_content_type :file, content_type: IMAGE_MIME_TYPES + VIDEO_MIME_TYPES + AUDIO_MIME_TYPES
-  validates_attachment_size :file, less_than: IMAGE_LIMIT, unless: :video_or_gifv?
+  validates_attachment_size :file, less_than: IMAGE_LIMIT, unless: :not_image?
+  validates_attachment_size :file, less_than: AUDIO_LIMIT, if: :audio?
   validates_attachment_size :file, less_than: VIDEO_LIMIT, if: :video_or_gifv?
   remotable_attachment :file, VIDEO_LIMIT
 
@@ -129,6 +132,10 @@ class MediaAttachment < ApplicationRecord
     file.blank? && remote_url.present?
   end
 
+  def not_image?
+    video? || gifv? || audio?
+  end
+  
   def video_or_gifv?
     video? || gifv?
   end
