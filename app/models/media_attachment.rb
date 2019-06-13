@@ -58,7 +58,7 @@ class MediaAttachment < ApplicationRecord
       format: 'mp4',
       convert_options: {
         output: {
-          filter_complex: '"[0:a]compand,showwaves=s=640x360:mode=line,format=yuv420p[v]"',
+          filter_complex: '"[0:a]compand,showwaves=s=640x360:split_channels=1:mode=cline:colors=blue|blue,format=yuv420p[v]"',
           map: '"[v]" -map 0:a', 
           threads: 2,
           vcodec: 'libx264',
